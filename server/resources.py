@@ -90,3 +90,21 @@ class SessionJoinResource(Resource):
         db.session.commit()
         return user_session.to_dict(), 201
 
+
+# ----------reflection----------
+
+class ReflectionListResource(Resource):
+    def get(self):
+        reflections = Reflection.query.all()
+        return [r.to_dict() for r in reflections], 200
+
+    def post(self):
+        data = request.get_json()
+        reflection = Reflection(
+            content=data["content"],
+            user_id=data["user_id"],
+            session_id=data["session_id"]
+        )
+        db.session.add(reflection)
+        db.session.commit()
+        return reflection.to_dict(), 201
