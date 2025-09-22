@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy_serializer import SerializerMixin
 from flask_cors import CORS
 from flask_migrate import Migrate
 from sqlalchemy import ForeignKey
@@ -22,7 +23,7 @@ CORS(app)  # Enables CORS for all routes
 # app.register_blueprint(api_bp)
 
 
-class User(db.Model):
+class User(db.Model,SerializerMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -58,7 +59,7 @@ class User(db.Model):
         return f'<User {self.id} {self.email}>'
 
 
-class Session(db.Model):
+class Session(db.Model,SerializerMixin):
     __tablename__ = 'sessions'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -88,7 +89,7 @@ class Session(db.Model):
         return f'<Session {self.id} "{self.title}">'
 
 
-class UserSession(db.Model):
+class UserSession(db.Model,SerializerMixin):
     __tablename__ = 'user_sessions'
     id = db.Column(db.Integer, primary_key=True)
     role = db.Column(db.String(200), nullable=False)
@@ -107,7 +108,7 @@ class UserSession(db.Model):
         return f'<UserSession {self.id} User {self.user_id} Session {self.session_id}>'
 
 
-class Reflection(db.Model):
+class Reflection(db.Model,SerializerMixin):
     __tablename__ = 'reflections'
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
