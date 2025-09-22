@@ -80,3 +80,13 @@ class SessionResource(Resource):
         db.session.delete(session)
         db.session.commit()
         return {"message": "Session deleted"}, 204
+
+
+class SessionJoinResource(Resource):
+    def post(self, id):
+        data = request.get_json()
+        user_session = UserSession(user_id=data["user_id"], session_id=id, role="participant")
+        db.session.add(user_session)
+        db.session.commit()
+        return user_session.to_dict(), 201
+
