@@ -108,3 +108,21 @@ class ReflectionListResource(Resource):
         db.session.add(reflection)
         db.session.commit()
         return reflection.to_dict(), 201
+    
+class ReflectionResource(Resource):
+    def get(self, id):
+        reflection = Reflection.query.get_or_404(id)
+        return reflection.to_dict(), 200
+
+    def patch(self, id):
+        reflection = Reflection.query.get_or_404(id)
+        data = request.get_json()
+        if "content" in data: reflection.content = data["content"]
+        db.session.commit()
+        return reflection.to_dict(), 200
+
+    def delete(self, id):
+        reflection = Reflection.query.get_or_404(id)
+        db.session.delete(reflection)
+        db.session.commit()
+        return {"message": "Reflection deleted"}, 204
