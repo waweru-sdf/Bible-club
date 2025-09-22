@@ -35,3 +35,27 @@ class UserResource(Resource):
         db.session.delete(user)
         db.session.commit()
         return {"message": "User deleted"}, 204
+    
+
+
+# ----------session----------
+class SessionListResource(Resource):
+    def get(self):
+        sessions = Session.query.all()
+        return [s.to_dict() for s in sessions], 200
+
+    def post(self):
+        data = request.get_json()
+        session = Session(
+            title=data["title"],
+            theme=data["theme"],
+            date=data["date"],
+            facilitator_id=data["facilitator_id"]
+        )
+        db.session.add(session)
+        db.session.commit()
+        # automatically add facilitator as participant
+        user_session = UserSession(user_id=data["facilitator_id"], session_id=session.id, role="facilitator")
+        db.session.add(user_session)
+        db.session.commit()
+        return session.to_dict(), 201
