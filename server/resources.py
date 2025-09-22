@@ -59,3 +59,24 @@ class SessionListResource(Resource):
         db.session.add(user_session)
         db.session.commit()
         return session.to_dict(), 201
+
+
+class SessionResource(Resource):
+    def get(self, id):
+        session = Session.query.get_or_404(id)
+        return session.to_dict(), 200
+
+    def patch(self, id):
+        session = Session.query.get_or_404(id)
+        data = request.get_json()
+        if "title" in data: session.title = data["title"]
+        if "theme" in data: session.theme = data["theme"]
+        if "date" in data: session.date = data["date"]
+        db.session.commit()
+        return session.to_dict(), 200
+
+    def delete(self, id):
+        session = Session.query.get_or_404(id)
+        db.session.delete(session)
+        db.session.commit()
+        return {"message": "Session deleted"}, 204
