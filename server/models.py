@@ -7,7 +7,6 @@ from sqlalchemy import ForeignKey
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bibleclub.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -18,17 +17,12 @@ migrate = Migrate(app, db)  # initializes flask-migrate
 CORS(app)  # Enables CORS for all routes
 
 
-# Importing blueprints after initializing extensions
-# from routes import bp as api_bp
-# app.register_blueprint(api_bp)
-
-
-class User(db.Model,SerializerMixin):
+class User(db.Model, SerializerMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
+    password_hash = db.Column(db.String(300), nullable=False)
 
     sessions_facilitated = db.relationship(
         'Session', back_populates='facilitator', cascade='all, delete-orphan')
@@ -38,15 +32,10 @@ class User(db.Model,SerializerMixin):
         'UserSession', back_populates='user', cascade='all, delete-orphan')
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow,onupdate=datetime.utcnow)
-
-    def __init__(self, name, email, password):
-        self.name = name
-        self.email = email
-        self.set_password(password)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -55,11 +44,20 @@ class User(db.Model,SerializerMixin):
         db.session.add(self)
         db.session.commit()
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
+
     def __repr__(self):
         return f'<User {self.id} {self.email}>'
 
 
-class Session(db.Model,SerializerMixin):
+class Session(db.Model, SerializerMixin):
     __tablename__ = 'sessions'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -75,21 +73,24 @@ class Session(db.Model,SerializerMixin):
         'UserSession', back_populates='session', cascade='all, delete-orphan')
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow,onupdate=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    def __init__(self, title, theme, date=None, facilitator_id=None):
-        self.title = title
-        self.theme = theme
-        if date:
-            self.date = date
-        if facilitator_id:
-            self.facilitator_id = facilitator_id
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'theme': self.theme,
+            'date': self.date,
+            'facilitator_id': self.facilitator_id,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
 
     def __repr__(self):
         return f'<Session {self.id} "{self.title}">'
 
 
-class UserSession(db.Model,SerializerMixin):
+class UserSession(db.Model, SerializerMixin):
     __tablename__ = 'user_sessions'
     id = db.Column(db.Integer, primary_key=True)
     role = db.Column(db.String(200), nullable=False)
@@ -99,16 +100,19 @@ class UserSession(db.Model,SerializerMixin):
     user = db.relationship('User', back_populates='user_sessions')
     session = db.relationship('Session', back_populates='session_memberships')
 
-    def __init__(self, role, user_id, session_id):
-        self.role = role
-        self.user_id = user_id
-        self.session_id = session_id
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'role': self.role,
+            'user_id': self.user_id,
+            'session_id': self.session_id,
+        }
 
     def __repr__(self):
         return f'<UserSession {self.id} User {self.user_id} Session {self.session_id}>'
 
 
-class Reflection(db.Model,SerializerMixin):
+class Reflection(db.Model, SerializerMixin):
     __tablename__ = 'reflections'
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
@@ -122,14 +126,19 @@ class Reflection(db.Model,SerializerMixin):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow,
                            onupdate=datetime.utcnow)
 
-    def __init__(self, content, user_id, session_id):
-        self.content = content
-        self.user_id = user_id
-        self.session_id = session_id
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'content': self.content,
+            'user_id': self.user_id,
+            'session_id': self.session_id,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
 
     def __repr__(self):
         return f'<Reflection {self.id} User {self.user_id} Session {self.session_id}>'
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5003)
+    app.run(debug=True, port=5005)
