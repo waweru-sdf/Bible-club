@@ -29,10 +29,9 @@ class User(db.Model, SerializerMixin):
         return {
             'id': self.id,
             'name': self.name,
-            'email': self.email,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'email': self.email
         }
+          
 
     def __repr__(self):
         return f'<User {self.id} {self.email}>'
@@ -60,9 +59,8 @@ class Session(db.Model, SerializerMixin):
             'title': self.title,
             'theme': self.theme,
             'date': self.date,
-            'facilitator_id': self.facilitator_id,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'facilitator_id': self.facilitator_id
+           
         }
 
     def __repr__(self):
@@ -108,9 +106,8 @@ class Reflection(db.Model, SerializerMixin):
             'id': self.id,
             'content': self.content,
             'user_id': self.user_id,
-            'session_id': self.session_id,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'session_id': self.session_id
+           
         }
 
     def __repr__(self):
