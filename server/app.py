@@ -7,7 +7,7 @@ from resources import (
     SessionListResource, SessionResource, SessionJoinResource,
     ReflectionListResource, ReflectionResource
 )  
-from auth import RegisterResource, LoginResource
+from auth import Register, Login
 
 
 app = Flask(__name__)
@@ -28,8 +28,8 @@ api.add_resource(SessionJoinResource, "/sessions/<int:id>/join")
 api.add_resource(ReflectionListResource, "/reflections")
 api.add_resource(ReflectionResource, "/reflections/<int:id>")
 
-api.add_resource(RegisterResource, "/register")
-api.add_resource(LoginResource, "/login")
+api.add_resource(Register, "/register")
+api.add_resource(Login, "/login")
 
 
 if __name__ == "__main__":
