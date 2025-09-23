@@ -18,9 +18,7 @@ class User(db.Model, SerializerMixin):
     user_sessions = db.relationship(
         'UserSession', back_populates='user', cascade='all, delete-orphan')
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
+    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
@@ -55,9 +53,7 @@ class Session(db.Model, SerializerMixin):
     session_memberships = db.relationship(
         'UserSession', back_populates='session', cascade='all, delete-orphan')
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
+   
     def to_dict(self):
         return {
             'id': self.id,
@@ -105,9 +101,7 @@ class Reflection(db.Model, SerializerMixin):
     user = db.relationship('User', back_populates='reflections')
     session = db.relationship('Session', back_populates='reflections')
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow,
-                           onupdate=datetime.utcnow)
+  
 
     def to_dict(self):
         return {
