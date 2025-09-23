@@ -6,7 +6,9 @@ from resources import (
     UserListResource, UserResource,
     SessionListResource, SessionResource, SessionJoinResource,
     ReflectionListResource, ReflectionResource
-)
+)  
+from auth import RegisterResource, LoginResource
+
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///bibleclub.db"
@@ -25,6 +27,10 @@ api.add_resource(SessionJoinResource, "/sessions/<int:id>/join")
 
 api.add_resource(ReflectionListResource, "/reflections")
 api.add_resource(ReflectionResource, "/reflections/<int:id>")
+
+api.add_resource(RegisterResource, "/register")
+api.add_resource(LoginResource, "/login")
+
 
 if __name__ == "__main__":
     with app.app_context():
