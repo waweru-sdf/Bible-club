@@ -1,14 +1,15 @@
-from flask_restful import Resource
 from flask import request, jsonify
+from flask_restful import Resource
 from models import User
 from extensions import db
+from auth_utils import create_jwt  # helper for generating tokens
 
 
 class Register(Resource):
     def get(self):
         users = User.query.all()
         return jsonify([user.to_dict() for user in users])
-
+    
     def post(self):
         data = request.get_json()
         name = data.get("name")
@@ -18,16 +19,16 @@ class Register(Resource):
         if not name or not email or not password:
             return {"message": "Name, email, and password are required"}, 400
 
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
+        if User.query.filter_by(email=email).first():
             return {"message": "User already exists"}, 400
 
-        new_user = User(name=name, email=email)
-        new_user.set_password(password)
-        db.session.add(new_user)
+        user = User(name=name, email=email)
+        user.set_password(password)  # hash password
+        db.session.add(user)
         db.session.commit()
 
-        return {"message": "User created successfully!"}, 201
+        token = create_jwt(user.id)
+        return {"message": "User created successfully!", "token": token, "user": user.to_dict()}, 201
 
 
 class Login(Resource):
@@ -41,6 +42,9 @@ class Login(Resource):
 
         user = User.query.filter_by(email=email).first()
         if user and user.check_password(password):
-            return {"message": "Login successful!"}, 200
-        else:
-            return {"message": "Invalid credentials"}, 401
+            token = create_jwt(user.id)
+            return {"message": "Login successful!", "token": token, "user": user.to_dict()}, 200
+
+        return {"message": "Invalid credentials"}, 401
+
+
