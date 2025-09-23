@@ -1,108 +1,45 @@
-from flask import Flask, request, session, jsonify, abort
-import os
-from dotenv import load_dotenv
-from flask_bcrypt import Bcrypt
+from flask_restful import Resource
+from flask import request, jsonify
+from werkzeug.security import check_password_hash
+from models import User
+from extensions import db
 
-load_dotenv()
+class Register(Resource):
+    def get(self):
+        users = User.query.all()
+        return jsonify([user.to_dict() for user in users])
 
-app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY')
-bcrypt = Bcrypt(app)
+    def post(self):
+        data = request.get_json()
+        username = data.get("username")
+        password = data.get("password")
+       
 
+        if not username or not password:
+            return {"Message": "Username and password are required"}, 400
 
-class User:
-    _users = {
-        'alice': {'id': 1, 'username': 'alice', 'email': 'alice@example.com', 'password_hash': bcrypt.generate_password_hash('password123').decode('utf-8')},
-        'bob': {'id': 2, 'username': 'bob', 'email': 'bob@example.com', 'password_hash': bcrypt.generate_password_hash('password456').decode('utf-8')}
-    }
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            return {"Message": "User already exists"}, 400
 
-    @classmethod
-    def get_by_username_or_email(cls, identifier):
-        # Check if identifier is username
-        user = cls._users.get(identifier)
-        if user:
-            return user
-        # Check if identifier is email
-        for u in cls._users.values():
-            if u.get('email') == identifier:
-                return u
-        return None
+        new_user = User(username=username)
+        new_user.set_password(password)  
+        db.session.add(new_user)
+        db.session.commit()
 
-    @classmethod
-    def get_by_id(cls, user_id):
-        for user in cls._users.values():
-            if user['id'] == user_id:
-                return user
-        return None
+        return {"message": "User created successfully!"}, 201
 
-    @classmethod
-    def check_password(cls, identifier, password):
-        user = cls.get_by_username_or_email(identifier)
-        if user and bcrypt.check_password_hash(user['password_hash'], password):
-            return user
-        return None
+class Login(Resource):
+    def post(self):
+        data = request.get_json()
+        username = data.get("username")
+        password = data.get("password")
 
-    @classmethod
-    def create_user(cls, username, email, password):
-        if username in cls._users:
-            return None
-        # Check if email already exists
-        for u in cls._users.values():
-            if u.get('email') == email:
-                return None
-        user_id = max([u['id'] for u in cls._users.values()]) + 1
-        cls._users[username] = {
-            'id': user_id,
-            'username': username,
-            'email': email,
-            'password_hash': bcrypt.generate_password_hash(password).decode('utf-8')
-        }
-        return cls._users[username]
+        if not username or not password:
+            return {"message": "Username and password are required"}, 400
 
-@app.route('/signup', methods=['POST'])
-def signup():
-    data = request.get_json()
-    username = data.get('username')
-    email = data.get('email')
-    password = data.get('password')
-    if not username or not password:
-        abort(400, 'Username and password are required')
-
-    user = User.create_user(username, email, password)
-    if not user:
-        abort(409, 'Username already exists')
-
-    session['user_id'] = user['id']
-    return jsonify({'id': user['id'], 'username': user['username'], 'email': user.get('email')}), 201
-
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    identifier = data.get('username') or data.get('email')
-    password = data.get('password')
-    if not identifier or not password:
-        abort(400, 'Username/email and password are required')
-
-    user = User.check_password(identifier, password)
-    if not user:
-        abort(401, 'Invalid username/email or password')
-
-    session['user_id'] = user['id']
-    return jsonify({'id': user['id'], 'username': user['username'], 'email': user.get('email')}), 200
-
-@app.route('/logout', methods=['DELETE'])
-def logout():
-    session.pop('user_id', None)
-    return '', 204
-
-@app.route('/check_session', methods=['GET'])
-def check_session():
-    user_id = session.get('user_id')
-    if user_id is None:
-        return '', 401
-
-    user = User.get_by_id(user_id)
-    if not user:
-        return '', 401
-
-    return jsonify({'id': user['id'], 'username': user['username'], 'email': user.get('email')}), 200
+        user = User.query.filter_by(username=username).first()
+        if user and user.check_password(password):  
+            return {"message": "Login successful!"}, 200
+        else:
+            return {"message": "Invalid credentials"}, 401
