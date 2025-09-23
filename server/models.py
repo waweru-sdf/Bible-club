@@ -1,20 +1,7 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
+from extensions import db
 from sqlalchemy_serializer import SerializerMixin
-from flask_cors import CORS
-from flask_migrate import Migrate
-from sqlalchemy import ForeignKey
-from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bibleclub.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-db.init_app(app)
-migrate = Migrate(app, db)  # initializes flask-migrate
-CORS(app)  # Enables CORS for all routes
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class User(db.Model, SerializerMixin):
@@ -35,14 +22,10 @@ class User(db.Model, SerializerMixin):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def set_password(self, password):
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-       
-    def create(self):
-        db.session.add(self)
-        db.session.commit()
 
     def to_dict(self):
         return {
@@ -138,7 +121,3 @@ class Reflection(db.Model, SerializerMixin):
 
     def __repr__(self):
         return f'<Reflection {self.id} User {self.user_id} Session {self.session_id}>'
-
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5005)
