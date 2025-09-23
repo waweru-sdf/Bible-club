@@ -1,5 +1,6 @@
 from flask import request
 from flask_restful import Resource
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, User, Session, UserSession, Reflection
 from datetime import datetime
 
@@ -9,12 +10,6 @@ class UserListResource(Resource):
         users = User.query.all()
         return [u.to_dict() for u in users], 200
 
-    def post(self):
-        data = request.get_json()
-        user = User(name=data["name"], email=data["email"], password=data["password"])
-        db.session.add(user)
-        db.session.commit()
-        return user.to_dict(), 201
 
 class UserResource(Resource):
     def get(self, id):
@@ -26,7 +21,7 @@ class UserResource(Resource):
         data = request.get_json()
         if "name" in data: user.name = data["name"]
         if "email" in data: user.email = data["email"]
-        if "password" in data: user.password = data["password"]
+        if "password" in data: user.set_password(data["password"])
         db.session.commit()
         return user.to_dict(), 200
 
@@ -35,7 +30,6 @@ class UserResource(Resource):
         db.session.delete(user)
         db.session.commit()
         return {"message": "User deleted"}, 204
-    
 
 
 # ----------session----------
@@ -44,20 +38,24 @@ class SessionListResource(Resource):
         sessions = Session.query.all()
         return [s.to_dict() for s in sessions], 200
 
+    @jwt_required()
     def post(self):
         data = request.get_json()
+        current_user = get_jwt_identity()  # logged in user ID
+
         session = Session(
             title=data["title"],
             theme=data["theme"],
             date=data["date"],
-            facilitator_id=data["facilitator_id"]
+            facilitator_id=current_user
         )
         db.session.add(session)
         db.session.commit()
-        # automatically add facilitator as participant
-        user_session = UserSession(user_id=data["facilitator_id"], session_id=session.id, role="facilitator")
+
+        user_session = UserSession(user_id=current_user, session_id=session.id, role="facilitator")
         db.session.add(user_session)
         db.session.commit()
+
         return session.to_dict(), 201
 
 
@@ -66,6 +64,7 @@ class SessionResource(Resource):
         session = Session.query.get_or_404(id)
         return session.to_dict(), 200
 
+    @jwt_required()
     def patch(self, id):
         session = Session.query.get_or_404(id)
         data = request.get_json()
@@ -75,6 +74,7 @@ class SessionResource(Resource):
         db.session.commit()
         return session.to_dict(), 200
 
+    @jwt_required()
     def delete(self, id):
         session = Session.query.get_or_404(id)
         db.session.delete(session)
@@ -82,38 +82,43 @@ class SessionResource(Resource):
         return {"message": "Session deleted"}, 204
 
 
+# ----------session join----------
 class SessionJoinResource(Resource):
+    @jwt_required()
     def post(self, id):
-        data = request.get_json()
-        user_session = UserSession(user_id=data["user_id"], session_id=id, role="participant")
+        current_user = get_jwt_identity()
+        user_session = UserSession(user_id=current_user, session_id=id, role="participant")
         db.session.add(user_session)
         db.session.commit()
         return user_session.to_dict(), 201
 
 
 # ----------reflection----------
-
 class ReflectionListResource(Resource):
     def get(self):
         reflections = Reflection.query.all()
         return [r.to_dict() for r in reflections], 200
 
+    @jwt_required()
     def post(self):
         data = request.get_json()
+        current_user = get_jwt_identity()
         reflection = Reflection(
             content=data["content"],
-            user_id=data["user_id"],
+            user_id=current_user,
             session_id=data["session_id"]
         )
         db.session.add(reflection)
         db.session.commit()
         return reflection.to_dict(), 201
-    
+
+
 class ReflectionResource(Resource):
     def get(self, id):
         reflection = Reflection.query.get_or_404(id)
         return reflection.to_dict(), 200
 
+    @jwt_required()
     def patch(self, id):
         reflection = Reflection.query.get_or_404(id)
         data = request.get_json()
@@ -121,6 +126,7 @@ class ReflectionResource(Resource):
         db.session.commit()
         return reflection.to_dict(), 200
 
+    @jwt_required()
     def delete(self, id):
         reflection = Reflection.query.get_or_404(id)
         db.session.delete(reflection)
