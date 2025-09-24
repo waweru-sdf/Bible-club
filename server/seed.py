@@ -1,5 +1,5 @@
-from .app import app
-from .models import db, User, Session, UserSession, Reflection
+from app import app
+from models import db, User, Session, UserSession, Reflection
 from datetime import datetime
 
 def seed_database():
