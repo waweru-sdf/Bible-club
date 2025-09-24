@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_restful import Api
-from flask_cors import CORS
-from models import db
+from extensions import db,migrate,cors
 from resources import (
     UserListResource, UserResource,
     SessionListResource, SessionResource, SessionJoinResource,
@@ -13,7 +12,8 @@ from auth import Register, Login
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///bibleclub.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-CORS(app)
+migrate.init_app(app, db)
+cors.init_app(app)
 db.init_app(app)
 api = Api(app)
 
