@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
-import Auth from '../components/Auth'
+import AuthContext from '../contexts/AuthContext'
 
 function Home() {
   const { user } = useContext(AuthContext);
@@ -14,6 +14,7 @@ function Home() {
       </p>
 
       {!user && (
+        
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <Link to="/login" style={{ margin: '0 1rem' }}>
             <button style={{ padding: '0.75rem 1.5rem', fontSize: '1rem' }}>Login</button>
@@ -36,10 +37,10 @@ function Home() {
           <ul>
             <li>Register</li>
                <p>If you are new, you can create a free account to become part of the Bible Club. Registration gives you access to all sessions, updates, and personalized features.</p>
-          
+
             <li>Join Sessions</li>
                <p>Once registered, you can join live or scheduled Bible study sessions. Each session focuses on a specific passage, theme, or lesson, with opportunities to participate, ask questions, and share thoughts.</p>
-          
+
             <li>Reflect and share</li>
                <p>After every session, you’ll have the chance to write your reflections. This is your space to share what you learned, how it touched your life, or even ask follow-up questions. Your feedback helps us grow as a community and also deepens your own learning journey.</p>
           </ul>
@@ -53,7 +54,7 @@ function Home() {
             <li>Track your personal reflections and spiritual growth.</li>
             <li>Share and learn from the experiences of others.</li>
           </ul>
-            
+
         </div>
 
       </div>
