@@ -11,6 +11,8 @@ from auth import Register, Login
 
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = "super-secret-key"
+app.config["JWT_SECRET_KEY"] = "super-secret-key"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///bibleclub.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -41,4 +43,4 @@ api.add_resource(Login, "/login")
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5003)

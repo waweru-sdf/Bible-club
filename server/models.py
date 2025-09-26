@@ -58,9 +58,9 @@ class Session(db.Model, SerializerMixin):
             'id': self.id,
             'title': self.title,
             'theme': self.theme,
-            'date': self.date,
+            'date': self.date.isoformat() if self.date else None,
             'facilitator_id': self.facilitator_id
-           
+
         }
 
     def __repr__(self):

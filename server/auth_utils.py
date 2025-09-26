@@ -7,7 +7,8 @@ SECRET_KEY = "super-secret-key"
 def create_jwt(identity):
     payload = {
         "sub": identity,
-        "iat": datetime.datetime.utcnow()
+        "iat": datetime.datetime.utcnow(),
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=1)
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     return token
