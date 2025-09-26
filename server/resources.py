@@ -4,11 +4,39 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, User, Session, UserSession, Reflection
 from datetime import datetime
 
-# ----------user----------
+
+class MeResource(Resource):
+    @jwt_required()
+    def get(self):
+        current_user_id = get_jwt_identity()
+        user = User.query.get_or_404(current_user_id)
+        return user.to_dict(), 200
+
+
 class UserListResource(Resource):
     def get(self):
         users = User.query.all()
         return [u.to_dict() for u in users], 200
+
+    @jwt_required()
+    def post(self):
+        data = request.get_json()
+        name = data.get("name")
+        email = data.get("email")
+        password = data.get("password")
+
+        if not name or not email or not password:
+            return {"message": "Name, email, and password are required"}, 400
+
+        if User.query.filter_by(email=email).first():
+            return {"message": "User already exists"}, 400
+
+        user = User(name=name, email=email)
+        user.set_password(password)
+        db.session.add(user)
+        db.session.commit()
+
+        return user.to_dict(), 201
 
 
 class UserResource(Resource):
@@ -32,7 +60,7 @@ class UserResource(Resource):
         return {"message": "User deleted"}, 204
 
 
-# ----------session----------
+
 class SessionListResource(Resource):
     def get(self):
         sessions = Session.query.all()
@@ -41,14 +69,15 @@ class SessionListResource(Resource):
     @jwt_required()
     def post(self):
         data = request.get_json()
-        current_user = get_jwt_identity()  # logged in user ID
+        current_user = get_jwt_identity()  
 
         session = Session(
             title=data["title"],
             theme=data["theme"],
-            date=data["date"],
-            facilitator_id=current_user
+            facilitator_id=data.get("facilitator_id") or current_user
         )
+        if "date" in data:
+            session.date = data["date"]
         db.session.add(session)
         db.session.commit()
 
@@ -82,18 +111,34 @@ class SessionResource(Resource):
         return {"message": "Session deleted"}, 204
 
 
-# ----------session join----------
-class SessionJoinResource(Resource):
+class JoinSessionResource(Resource):
     @jwt_required()
-    def post(self, id):
-        current_user = get_jwt_identity()
-        user_session = UserSession(user_id=current_user, session_id=id, role="participant")
+    def post(self, session_id):
+        user_id = get_jwt_identity()
+
+        session = Session.query.get_or_404(session_id)
+
+        existing = UserSession.query.filter_by(
+            user_id=user_id,
+            session_id=session_id
+        ).first()
+
+        if existing:
+            return {"message": "Already joined"}, 200
+
+       
+        user_session = UserSession(
+            user_id=user_id,
+            session_id=session_id,
+            role="member"
+        )
         db.session.add(user_session)
         db.session.commit()
+
         return user_session.to_dict(), 201
 
 
-# ----------reflection----------
+
 class ReflectionListResource(Resource):
     def get(self):
         reflections = Reflection.query.all()
@@ -120,7 +165,10 @@ class ReflectionResource(Resource):
 
     @jwt_required()
     def patch(self, id):
+        current_user_id = get_jwt_identity()
         reflection = Reflection.query.get_or_404(id)
+        if reflection.user_id != int(current_user_id):
+            return {"message": "Unauthorized"}, 403
         data = request.get_json()
         if "content" in data: reflection.content = data["content"]
         db.session.commit()
@@ -128,7 +176,10 @@ class ReflectionResource(Resource):
 
     @jwt_required()
     def delete(self, id):
+        current_user_id = get_jwt_identity()
         reflection = Reflection.query.get_or_404(id)
+        if reflection.user_id != int(current_user_id):
+            return {"message": "Unauthorized"}, 403
         db.session.delete(reflection)
         db.session.commit()
         return {"message": "Reflection deleted"}, 204
