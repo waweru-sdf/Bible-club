@@ -2,7 +2,7 @@ from flask import request, jsonify
 from flask_restful import Resource
 from models import User
 from extensions import db
-from auth_utils import create_jwt  # helper for generating tokens
+from auth_utils import create_jwt  
 
 
 class Register(Resource):
@@ -23,7 +23,7 @@ class Register(Resource):
             return {"message": "User already exists"}, 400
 
         user = User(name=name, email=email)
-        user.set_password(password)  # hash password
+        user.set_password(password)  
         db.session.add(user)
         db.session.commit()
 
