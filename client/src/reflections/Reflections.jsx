@@ -169,7 +169,7 @@ function Reflections() {
   const session = sessions.find(s => s.id === reflection.session_id)
   return (
     <li key={reflection.id}>
-      <strong>{user ? user.name : 'Unknown User'}</strong> 
+      <strong>{user ? user.name : 'Unknown User'} </strong>  
       on <em>{session ? session.title : 'Unknown Session'}</em>: {reflection.content}
 
 

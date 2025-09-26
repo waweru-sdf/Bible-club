@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "http://localhost:5003";
 
 function Sessions() {
   const [allSessions, setAllSessions] = useState([]);
@@ -29,6 +29,7 @@ function Sessions() {
     const res = await fetch(`${API_BASE}/sessions`, { headers: getHeaders() });
     const data = await res.json();
 
+    // Add helper fields so UI knows if current user already joined
     const decorated = data.map((s) => ({
       ...s,
       joined:
@@ -89,7 +90,7 @@ function Sessions() {
 
     const data = await res.json(); 
 
-    
+ 
     setAllSessions((prev) =>
       prev.map((s) =>
         s.id === sessionId
@@ -98,7 +99,7 @@ function Sessions() {
       )
     );
 
-    
+   
     setMySessions((prev) => {
       const alreadyIn = prev.some((s) => s.id === sessionId);
       if (alreadyIn) return prev;

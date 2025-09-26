@@ -11,12 +11,13 @@ from auth import Register, Login
 
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "super-secret-key"
-app.config["JWT_SECRET_KEY"] = "super-secret-key"
+# app.config["SECRET_KEY"] = "super-secret-key"
+# app.config["JWT_SECRET_KEY"] = "super-secret-key"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///bibleclub.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 migrate.init_app(app, db)
+
 cors.init_app(app)
 jwt.init_app(app)
 db.init_app(app)
