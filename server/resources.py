@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, jsonify
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, User, Session, UserSession, Reflection
@@ -9,8 +9,9 @@ class MeResource(Resource):
     @jwt_required()
     def get(self):
         current_user_id = get_jwt_identity()
+        print(current_user_id)
         user = User.query.get_or_404(current_user_id)
-        return user.to_dict(), 200
+        return jsonify(user.to_dict(), 200)
 
 
 class UserListResource(Resource):

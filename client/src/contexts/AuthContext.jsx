@@ -10,17 +10,18 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       if (token) {
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        try {
-          const response = await axios.get('http://localhost:5003/me');
-          setUser(response.data);
-          localStorage.setItem('user_id', response.data.id);
-        } catch (error) {
-          console.error('Token invalid', error);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user_id');
-          setToken(null);
-        }
+        console.log(`Bearer ${token}`)
+        fetch('http://localhost:5003/me', {
+          method: 'GET',
+          headers: {
+            "Authorization" : `Bearer ${token}`
+          }
+        })
+        .then(data => data.json())
+        .then(data => {
+          setUser(data[0])
+          localStorage.setItem('user_id', data[0].id);
+        })
       }
     };
     checkAuth();
@@ -29,11 +30,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await axios.post('http://localhost:5003/login', { email, password });
-      const { token: newToken, user: userData } = response.data;
+      const { token: newToken, user: userData } = response.data[0];
       setToken(newToken);
       setUser(userData);
       localStorage.setItem('token', newToken);
-      localStorage.setItem('user_id', userData.id);
       axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
       return true;
     } catch (error) {

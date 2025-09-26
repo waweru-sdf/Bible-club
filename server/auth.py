@@ -3,6 +3,8 @@ from flask_restful import Resource
 from models import User
 from extensions import db
 from auth_utils import create_jwt  
+from flask_jwt_extended import create_access_token
+
 
 
 class Register(Resource):
@@ -42,8 +44,8 @@ class Login(Resource):
 
         user = User.query.filter_by(email=email).first()
         if user and user.check_password(password):
-            token = create_jwt(user.id)
-            return {"message": "Login successful!", "token": token, "user": user.to_dict()}, 200
+            token = create_access_token(identity=user.id)
+            return jsonify({"token": token, "user": user.to_dict()}, 200)
 
         return {"message": "Invalid credentials"}, 401
 

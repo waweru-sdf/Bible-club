@@ -21,7 +21,7 @@ function Sessions() {
   const getHeaders = () => {
     return {
       "Content-Type": "application/json",
-      Authorization: token ? `Bearer ${token}` : "",
+      "Authorization": token ? `Bearer ${token}` : "",
     };
   };
 
@@ -90,7 +90,7 @@ function Sessions() {
 
     const data = await res.json(); 
 
- 
+   
     setAllSessions((prev) =>
       prev.map((s) =>
         s.id === sessionId
@@ -99,7 +99,7 @@ function Sessions() {
       )
     );
 
-   
+    
     setMySessions((prev) => {
       const alreadyIn = prev.some((s) => s.id === sessionId);
       if (alreadyIn) return prev;
@@ -171,8 +171,8 @@ function Sessions() {
       <ul>
         {allSessions.map((s) => (
           <li key={s.id}>
-            {s.title} - {s.theme} (Facilitator:{" "}
-            {s.facilitator ? s.facilitator.name : "None"})
+            {s.title} - {s.theme} (Facilitator Id:{" "}
+            {s.facilitator_id ? s.facilitator_id : "None"})
             <div>
               {String(s.facilitator_id) === String(currentUserId) && (
                 <>
@@ -181,7 +181,7 @@ function Sessions() {
                 </>
               )}
 
-            
+              {/* 🔹 Only show Join if not facilitator & not already joined */}
               {String(s.facilitator_id) !== String(currentUserId) && !s.joined && (
                 <button onClick={() => joinSession(s.id)}>Join Session</button>
               )}
