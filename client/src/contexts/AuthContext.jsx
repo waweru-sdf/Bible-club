@@ -22,6 +22,9 @@ export const AuthProvider = ({ children }) => {
           setUser(data[0])
           localStorage.setItem('user_id', data[0].id);
         })
+        .catch(()=> {
+          localStorage.removeItem("token")
+        })
       }
     };
     checkAuth();

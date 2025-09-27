@@ -23,7 +23,7 @@ function App() {
           <button onClick={logout} style={{ marginTop: '2rem', width: '100%' }}>Logout</button>
         </div>
       )}
-      <div className="main-content">
+      <div className={`main-content ${user ? '' : 'full-width'}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

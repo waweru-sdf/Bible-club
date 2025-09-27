@@ -99,7 +99,7 @@ function Sessions() {
       )
     );
 
-    
+
     setMySessions((prev) => {
       const alreadyIn = prev.some((s) => s.id === sessionId);
       if (alreadyIn) return prev;

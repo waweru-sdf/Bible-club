@@ -36,6 +36,10 @@
   padding: 2rem;
 }
 
+.main-content.full-width {
+  margin-left: 0;
+}
+
 form {
   max-width: 600px;
   margin: 0 auto 2rem;
