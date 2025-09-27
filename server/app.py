@@ -8,12 +8,26 @@ from resources import (
     ReflectionListResource, ReflectionResource
 )
 from auth import Register, Login
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
-app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = '7c417c716e1c3133a094a5661460efc2'
+app = Flask(__name__, static_url_path="/", static_folder="./client/build")
+app.config["JWT_SECRET_KEY"] = os.getenv('JWT_SECRET_KEY')
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///bibleclub.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+#render index route
+@app.route("/")
+def index():
+    return app.send_static_file("index.html")
+
+#render 404 route pate
+@app.errorhandler(404)
+def not_found(err):
+    return app.send_static_file("index.html")
+
 
 
 migrate.init_app(app, db)
@@ -42,6 +56,4 @@ api.add_resource(Login, "/login")
 
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True, port=5003)
+    app.run(debug=False, port=5003)

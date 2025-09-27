@@ -1,0 +1,187 @@
+#root {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+  padding: 2rem 1rem;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid var(--primary-color);
+}
+
+.sidebar a {
+  display: block;
+  margin: 1rem 0;
+  text-decoration: none;
+  color: var(--text-color);
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  transition: all 0.3s ease;
+}
+
+.sidebar a:hover {
+  background: var(--primary-color);
+  transform: translateX(5px);
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 250px;
+  padding: 2rem;
+}
+
+form {
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--secondary-color);
+}
+
+form div {
+  margin-bottom: 1.5rem;
+}
+
+form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+form input, form select, form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--card-bg);
+  color: var(--text-color);
+  transition: border-color 0.3s ease;
+}
+
+form select {
+  background: var(--card-bg);
+}
+
+form select option {
+  background: var(--card-bg);
+  color: var(--text-color);
+}
+
+form input:focus, form select:focus, form textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+form button {
+  padding: 0.75rem 1.5rem;
+  margin-right: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--primary-color);
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+form button:hover {
+  background: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+.error {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.feature-card {
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--secondary-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+.feature-card h2 {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul li {
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  background: var(--card-bg);
+  box-shadow: var(--shadow);
+  margin-bottom: 1rem;
+  border: 1px solid var(--secondary-color);
+  transition: transform 0.3s ease;
+}
+
+ul li:hover {
+  transform: translateY(-5px);
+}
+
+ul li button {
+  margin-left: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+ul li button:first-of-type {
+  background: var(--secondary-color);
+  color: black;
+}
+
+ul li button:first-of-type:hover {
+  background: #e6951a;
+  transform: scale(1.05);
+}
+
+ul li button:last-of-type {
+  background: #dc3545;
+  color: white;
+}
+
+ul li button:last-of-type:hover {
+  background: #c82333;
+  transform: scale(1.05);
+}
