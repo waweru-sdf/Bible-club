@@ -32,8 +32,6 @@ git clone https://github.com/waweru-sdf/Bible-club
 - cd server 
 - pipenv install
 - pipenv shell 
-- flask db init 
-- flask db migrate 
 - flask db upgrade head 
 - python seed.py 
 - python app.py
